@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" th:href="@{img/favicon/apple-touch-icon.png}">
+    <link rel="icon" type="image/png" sizes="32x32" th:href="@{img/favicon/favicon-32x32.png}">
+    <link rel="icon" type="image/png" sizes="16x16" th:href="@{img/favicon/favicon-16x16.png}">
+    <link rel="manifest" th:href="@{img/favicon/site.webmanifest}">
+    <link rel="mask-icon" th:href="@{img/favicon/safari-pinned-tab.svg}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{css/index.css}"/>
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{css/register.css}"/>
+    <title>Check all the companies!</title>
+</head>
+<body>
+<div class="container" onclick="location.href='/';" style="cursor: pointer;">
+    <div class="img-container">
+        <img th:src="@{img/header_pic.jpg}" width="150" height="150"/>
+    </div>
+    <div class="text-container">
+        <h1>Register a new tenant</h1>
+    </div>
+</div>
+
+<div class="main-form-container">
+    <div class="form-container">
+        <form action="/tenant-registration" id="register" method="post">
+            <div class="row">
+                <div class="col-25">
+                    <label for="tenantName">Tenant Name : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" th:required="true" id="tenantName" name="tenantName" placeholder="Your tenant name...">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="currentSubscriptionUrl">Active Subscription HRef : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" id="currentSubscriptionUrl" name="currentSubscriptionUrl" placeholder="Current subscription href">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="serviceLevel">Service Level : </label>
+                </div>
+                <div class="col-75">
+                    <select id="serviceLevel" name="serviceLevel">
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="url">Watch URL : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" id="url" name="url" placeholder="URL that RSS feed service monitors">
+                </div>
+            </div>
+            <br>
+            <div class="row" style="float: right">
+                <a href="javascript:document.getElementById('register').submit();" class="add-new-company-btn" type="submit">Create New Tenant</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+</body>
+</html>
