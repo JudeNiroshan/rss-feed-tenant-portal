@@ -1,4 +1,4 @@
-package org.demo.tenant.manager.service;
+package org.demo.tenant.manager.controller;
 
 import io.fabric8.kubernetes.api.model.GenericKubernetesResource;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -11,48 +11,30 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import io.fabric8.kubernetes.client.dsl.NamespaceableResource;
 import io.fabric8.openshift.client.OpenShiftClient;
-import org.demo.tenant.manager.model.Subscription;
-import org.demo.tenant.manager.model.User;
-import org.demo.tenant.manager.repository.SubscriptionRepository;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-@Service
-public class SubscriptionService {
+@Controller
+public class TestController {
 
-    private final SubscriptionRepository subscriptionRepository;
+    @GetMapping("/test")
+    public String getTenantRegistrationForm(HttpSession session) {
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository) {
-        this.subscriptionRepository = subscriptionRepository;
-    }
-
-    public Subscription save(String tenantName,
-                             String serviceLevel,
-                             String currentSubscriptionUrl,
-                             User user) {
-
-        Subscription subscription = new Subscription();
-        subscription.setTenantName(tenantName);
-        subscription.setServiceLevel(serviceLevel);
-        subscription.setCurrentSubscriptionUrl(currentSubscriptionUrl);
-        subscription.setUser(user);
-
-        Subscription savedSubscription = subscriptionRepository.save(subscription);
-
-        String namespaceName = savedSubscription.getTenantName();
-        String freshRssName = savedSubscription.getTenantName();
+        String namespaceName = "jude-test-tenant-1";
+        String freshRssName = "jude-freshrss-sample";
         String crdApiVersion = "freshrss.demo.openshift.com/v1alpha1";
         String crdKind = "FreshRSS";
-        String defaultUser = user.getName();
 
-        try (final KubernetesClient k8sClient = new KubernetesClientBuilder().build()) {
+        try {
+            final KubernetesClient k8sClient = new KubernetesClientBuilder().build();
             // Do stuff with client
             OpenShiftClient ocpClient = k8sClient.adapt(OpenShiftClient.class);
             Namespace namespace = new NamespaceBuilder()
@@ -63,8 +45,8 @@ public class SubscriptionService {
             ocpClient.namespaces().createOrReplace(namespace);
 
             Map<String, Object> map = new HashMap<>();
-            map.put("defaultUser", defaultUser);
-            map.put("title", savedSubscription.getTenantName());
+            map.put("defaultUser", "bob");
+            map.put("title", "Awesome RSS 123");
 
             GenericKubernetesResource crdResource = new GenericKubernetesResource();
             crdResource.setKind(crdKind);
@@ -104,19 +86,19 @@ public class SubscriptionService {
                         }
                     });
 
-            actionLatch.await(1, TimeUnit.MINUTES);
+            actionLatch.await();
             watch.close();
 
-            if (!urlList.isEmpty()) {
-                System.out.println("URL --->" + urlList.get(0));
-                savedSubscription.setUrl(urlList.get(0));
-            }
+            System.out.println("URL --->" + urlList.get(0));
 
             ocpClient.close();
+            k8sClient.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return subscriptionRepository.save(savedSubscription);
+
+        return "login";
     }
+
 }

@@ -4,9 +4,9 @@ WORKDIR /usr/app
 
 COPY ./target/rss-feed-tenant-manager-1.0.0-spring-boot.jar .
 
-RUN mkdir uploaded_files
-
-COPY ./uploaded_files/* uploaded_files
+#RUN mkdir uploaded_files
+#
+#COPY ./uploaded_files/* uploaded_files
 
 CMD ["java","-jar","rss-feed-tenant-manager-1.0.0-spring-boot.jar"]
 

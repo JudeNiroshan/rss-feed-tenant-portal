@@ -168,6 +168,7 @@ body {
 }
 
 .company-item-text-container {
+    width: 100%;
     margin: 5px;
     padding-left: 10px;
     /*display: flex;*/
