@@ -12,15 +12,15 @@
 
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" media="all" th:href="@{css/signup.css}"/>
-    <title>Sign-Up</title>
+    <title>Registration</title>
 </head>
 <body>
-<div class="container"  onclick="location.href='/signup';" style="cursor: pointer;">
+<div class="container" onclick="location.href='/signup';" style="cursor: pointer;">
     <div class="img-container">
         <img th:src="@{img/header_pic.jpg}" width="150" height="150"/>
     </div>
     <div class="text-container">
-        <h1>Sign-Up</h1>
+        <h1>Tenant Registration</h1>
     </div>
 </div>
 
@@ -30,18 +30,10 @@
         <form action="/signup" method="post">
             <div class="row">
                 <div class="col-25">
-                    <label for="name">User Name : </label>
-                </div>
-                <div class="col-75">
-                    <input type="text" th:required="true" id="name" name="name" placeholder="Name">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-25">
                     <label for="email">Email : </label>
                 </div>
                 <div class="col-75">
-                    <input type="text" th:required="true" id="email" name="email" placeholder="Email">
+                    <input type="text" th:required="true" id="email" name="email" placeholder="Login Email">
                 </div>
             </div>
             <div class="row">
@@ -57,16 +49,68 @@
                     <label for="conf-password">Confirm Password : </label>
                 </div>
                 <div class="col-75">
-                    <input type="password" th:required="true" id="conf-password" name="conf-password" placeholder="Password">
+                    <input type="password" th:required="true" id="conf-password" name="conf-password"
+                           placeholder="Password">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="tenantName">Tenant Username : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" th:required="true" id="tenantName" name="tenantName"
+                           placeholder="Your Tenant Name">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="orgName">Organization Name : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" th:required="true" id="orgName" name="orgName"
+                           placeholder="Company/Organization name">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="address">Business Address : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" th:required="true" id="address" name="address"
+                           placeholder="No. 25, york street, Manhattan">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="phone">Phone Number : </label>
+                </div>
+                <div class="col-75">
+                    <input type="tel" th:required="true" id="phone" name="phone" placeholder="+49 176 123456789">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="contactPerson">Contact Person : </label>
+                </div>
+                <div class="col-75">
+                    <input type="text" th:required="true" id="contactPerson" name="contactPerson">
                 </div>
             </div>
             <br>
             <div class="row">
-                <input type="submit" value="Sign Up">
+                <input type="submit" id="submitBtn" value="Subscribe" onclick="submitOnclick();">
             </div>
         </form>
     </div>
 </div>
 
+<script language="JavaScript">
+    function submitOnclick() {
+        console.log("function get called!!!")
+        const btn = document.getElementById("submitBtn");
+        btn.innerText = "Pending...";
+        document.getElementById('register').submit();
+    }
+</script>
 </body>
 </html>

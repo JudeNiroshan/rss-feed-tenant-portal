@@ -1,8 +1,8 @@
 package org.demo.tenant.manager.controller;
 
-import org.demo.tenant.manager.service.UserService;
-import org.demo.tenant.manager.model.User;
+import org.demo.tenant.manager.model.Tenant;
 import org.demo.tenant.manager.service.SubscriptionService;
+import org.demo.tenant.manager.service.TenantService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,49 +14,57 @@ import java.util.Optional;
 @Controller
 public class TenantController {
 
-    private final UserService userService;
+    private final TenantService tenantService;
+
     private final SubscriptionService subscriptionService;
 
-    public TenantController(UserService userService, SubscriptionService subscriptionService) {
-        this.userService = userService;
+    public TenantController(TenantService tenantService, SubscriptionService subscriptionService) {
+        this.tenantService = tenantService;
         this.subscriptionService = subscriptionService;
     }
 
-    @GetMapping("/")
-    public String get(HttpSession session) {
-        if (session.getAttribute("user") != null) {
-            return "index";
+    @GetMapping("/login")
+    public String getLogin() {
+        return "login";
+    }
+
+    @GetMapping("/logout")
+    public String getLogout(HttpSession session) {
+        session.removeAttribute("tenant");
+        return "login";
+    }
+
+    @GetMapping("/signup")
+    public String getSignup() {
+        return "signup";
+    }
+
+    @PostMapping("/login")
+    public String submitLogin(@RequestParam("email") String email,
+                              @RequestParam("password") String password,
+                              HttpSession session) {
+        System.out.println("going to check login db");
+        Optional<Tenant> optionalUser = tenantService.findTenant(email, password, true);
+        if (optionalUser.isPresent()) {
+            session.setAttribute("tenant", optionalUser.get());
+            return "redirect:/";
         }
         return "redirect:/login";
     }
 
-    @GetMapping("/tenant-registration")
-    public String getTenantRegistrationForm(HttpSession session) {
-        if (session.getAttribute("user") != null) {
-            return "register";
-        }
-        return "redirect:/login";
-    }
-
-
-    @PostMapping("/tenant-registration")
-    public String submitSignup(@RequestParam("tenantName") String tenantName,
-                               @RequestParam("currentSubscriptionUrl") String currentSubscriptionUrl,
-                               @RequestParam("serviceLevel") String serviceLevel,
-                               @RequestParam("url") String url,
+    @PostMapping("/signup")
+    public String submitSignup(@RequestParam("email") String email,
+                               @RequestParam("password") String password,
+                               @RequestParam("tenantName") String tenantName,
+                               @RequestParam("orgName") String orgName,
+                               @RequestParam("address") String address,
+                               @RequestParam("phone") String phone,
+                               @RequestParam("contactPerson") String contactPerson,
                                HttpSession session) {
-        if(!(session.getAttribute("user") instanceof User)) {
-            return "redirect:/login";
-        }
-        User user = (User) session.getAttribute("user");
-        subscriptionService.save(tenantName, currentSubscriptionUrl, serviceLevel, user);
-
-        Optional<User> optionalUser = userService.findLatestUser(user);
-        if (optionalUser.isEmpty()) {
-            return "redirect:/login";
-        }
-
-        session.setAttribute("user", optionalUser.get());
+        Tenant oldTenant = tenantService.save(email, password, tenantName, orgName, address, phone, contactPerson);
+        subscriptionService.save(oldTenant);
+        Optional<Tenant> latestTenant = tenantService.findLatestTenant(oldTenant);
+        session.setAttribute("tenant", latestTenant.get());
         return "redirect:/";
     }
 }

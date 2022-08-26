@@ -19,18 +19,17 @@ rules:
       - get
       - list
       - create
-      - patch
-      - update
+      - delete
   - apiGroups:
-      - freshrss.demo.openshift.com/v1alpha1
+      - freshrss.demo.openshift.com
     resources:
-      - FreshRSS
+      - freshrsses
     verbs:
       - get
       - list
       - create
-      - patch
-      - update
+      - delete
+      - watch
 
 ---
 
@@ -46,6 +45,74 @@ subjects:
   - kind: ServiceAccount
     name: tenant-controller-sa
     namespace: default
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tenant-controller-mysql-password
+type: opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: redhat
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tenant-controller-mysql-db
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: "mysql"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-store
+              mountPath: /var/lib/mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tenant-controller-mysql-password
+                  key: MYSQL_ROOT_PASSWORD
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-store
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: tenant-controller-db-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
 
 ---
 
@@ -74,10 +141,11 @@ spec:
           image: quay.io/jnirosha/rss-feed-tenant-manager:latest
           imagePullPolicy: Always
           env:
-            - name: NODE_NAME
+            - name: MYSQL_ROOT_PASSWORD
               valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
+                secretKeyRef:
+                  name: tenant-controller-mysql-password
+                  key: MYSQL_ROOT_PASSWORD
 
 ---
 
