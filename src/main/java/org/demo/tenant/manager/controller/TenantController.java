@@ -46,7 +46,7 @@ public class TenantController {
         System.out.println("going to check login db");
         Optional<Tenant> optionalUser = tenantService.findTenant(email, password, true);
         if (optionalUser.isPresent()) {
-            session.setAttribute("tenant", optionalUser.get());
+            session.setAttribute("tenant", tenantService.findLatestTenant(optionalUser.get()).get());
             return "redirect:/";
         }
         return "redirect:/login";
